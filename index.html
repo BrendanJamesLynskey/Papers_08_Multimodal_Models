@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Papers 08 — Multimodal Models</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-card: #0d1117;
+            --bg-code: #161b22;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent: #76B900;
+            --accent-dim: #76B90044;
+            --accent-glow: #76B90033;
+            --border: #21262d;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+            --font-body: 'Inter', sans-serif;
+            --max-width: 900px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            font-size: 17px;
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .hero > * { position: relative; z-index: 1; }
+        .series-label {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--accent);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+        .hero h1 .accent { color: var(--accent); }
+        .hero .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 640px;
+            margin-bottom: 2rem;
+        }
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 2.5rem;
+        }
+        .tag {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            background: var(--accent-dim);
+            white-space: nowrap;
+        }
+        .pipeline {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+            margin-bottom: 1rem;
+            max-width: var(--max-width);
+        }
+        .pipeline-step {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            padding: 0.3rem 0.7rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .pipeline-arrow { color: var(--accent); font-size: 0.9rem; font-weight: 700; }
+        .slide {
+            min-height: 100vh;
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 4rem 1.5rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .slide-number {
+            font-family: var(--font-display);
+            font-size: 5rem;
+            font-weight: 700;
+            color: var(--accent-dim);
+            position: absolute;
+            top: 2rem;
+            right: 1.5rem;
+            line-height: 1;
+            user-select: none;
+        }
+        .slide h2 {
+            font-family: var(--font-display);
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            line-height: 1.25;
+        }
+        .slide h3 {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .slide p { margin-bottom: 1rem; color: var(--text-secondary); }
+        .slide p strong { color: var(--text-primary); }
+        .slide ul, .slide ol { margin-bottom: 1rem; padding-left: 1.5rem; color: var(--text-secondary); }
+        .slide li { margin-bottom: 0.4rem; }
+        .slide li strong { color: var(--text-primary); }
+        .slide code {
+            font-family: var(--font-mono);
+            font-size: 0.88em;
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            padding: 0.05rem 0.35rem;
+            border-radius: 3px;
+            color: #c9d1d9;
+        }
+        .code-block {
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin: 1.25rem 0;
+            overflow: hidden;
+        }
+        .code-header {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--accent);
+            background: rgba(118, 185, 0, 0.08);
+            padding: 0.4rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .code-block pre { margin: 0; padding: 1rem; overflow-x: auto; }
+        .code-block code {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #c9d1d9;
+            background: transparent;
+            border: none;
+            padding: 0;
+        }
+        .kw { color: #ff7b72; }
+        .fn { color: #d2a8ff; }
+        .str { color: #a5d6ff; }
+        .cm { color: #8b949e; font-style: italic; }
+        .num { color: #79c0ff; }
+        .type { color: #ffa657; }
+        .dir { color: #ff7b72; }
+        .mac { color: #ffa657; }
+        .table-wrap {
+            overflow-x: auto;
+            margin: 1.25rem 0;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th {
+            background: var(--bg-code);
+            color: var(--accent);
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-family: var(--font-display);
+            white-space: nowrap;
+        }
+        td {
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:nth-child(even) td { background: rgba(13, 17, 23, 0.5); }
+        .diagram-flow {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .diagram-box {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            text-align: center;
+            white-space: nowrap;
+        }
+        .diagram-box.accent { border-color: var(--accent); color: var(--accent); background: rgba(118, 185, 0, 0.08); }
+        .diagram-box.dim { color: var(--text-secondary); border-color: var(--border); }
+        .diagram-arrow { color: var(--accent); font-size: 1.3rem; font-weight: 700; }
+        .diagram-vertical {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .diagram-vertical .diagram-arrow { font-size: 1.1rem; }
+        .hierarchy {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .hierarchy-level { display: flex; align-items: center; gap: 0.75rem; }
+        .hierarchy-label {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            min-width: 80px;
+            text-align: right;
+        }
+        .hierarchy-items { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+        .hierarchy-item {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        .hierarchy-item.accent { border-color: var(--accent); color: var(--accent); background: rgba(118, 185, 0, 0.08); }
+        .diagram-grid {
+            display: grid;
+            gap: 0.75rem;
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .diagram-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+        .diagram-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+        .diagram-panel {
+            padding: 1rem;
+            background: var(--bg-code);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+        }
+        .diagram-panel.accent-border { border-left: 3px solid var(--accent); }
+        .diagram-panel h4 {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+        .diagram-panel p, .diagram-panel ul { font-size: 0.85rem; }
+        .callout {
+            background: var(--bg-card);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 8px 8px 0;
+            padding: 1rem 1.25rem;
+            margin: 1.25rem 0;
+        }
+        .callout p { margin-bottom: 0; }
+        .callout p + p { margin-top: 0.5rem; }
+        .callout .callout-label {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.3rem;
+        }
+        .contents-list { list-style: none; padding-left: 0; counter-reset: contents; }
+        .contents-list li {
+            counter-increment: contents;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .contents-list li:last-child { border-bottom: none; }
+        .contents-list li::before {
+            content: counter(contents, decimal-leading-zero);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--accent);
+            min-width: 2rem;
+        }
+        .contents-list a { color: var(--text-primary); text-decoration: none; transition: color 0.2s; }
+        .contents-list a:hover { color: var(--accent); }
+        .footer {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+            max-width: var(--max-width);
+            margin: 0 auto;
+        }
+        .footer a { color: var(--accent); text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        .canvas-wrap {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1.25rem 0;
+            overflow-x: auto;
+        }
+        .canvas-wrap canvas, .canvas-wrap svg { display: block; margin: 0 auto; max-width: 100%; }
+        .badge {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            padding: 0.1rem 0.45rem;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            vertical-align: middle;
+            margin-left: 0.3rem;
+        }
+        .badge.ok    { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+        .badge.warn  { border-color: #ffa657; color: #ffa657; background: rgba(255,166,87,0.08); }
+        .badge.bad   { border-color: #ff7b72; color: #ff7b72; background: rgba(255,123,114,0.08); }
+        @media (max-width: 640px) {
+            .slide { padding: 3rem 1rem; min-height: auto; }
+            .slide-number { font-size: 3rem; top: 1.5rem; right: 1rem; }
+            .slide h2 { font-size: 1.5rem; }
+            .diagram-grid.cols-2, .diagram-grid.cols-3 { grid-template-columns: 1fr; }
+            .pipeline { gap: 0.15rem; }
+            .pipeline-step { font-size: 0.6rem; padding: 0.2rem 0.4rem; }
+            .hero h1 { font-size: 1.8rem; }
+            table { font-size: 0.78rem; }
+        }
+    </style>
+</head>
+<body>
+<header class="hero">
+    <div class="series-label">Key LLM Publications Series &mdash; Presentation 08</div>
+    <h1>Multimodal Models &mdash; Teaching Language Models to <span class="accent">See and Hear</span></h1>
+    <p class="subtitle">Five publications that built the modern vision-language and speech stack: patch-based vision transformers, contrastive image&ndash;text alignment, frozen-backbone bridging, instruction-tuned assistants, and weakly-supervised speech recognition.</p>
+    <div class="tags">
+        <span class="tag">ViT</span>
+        <span class="tag">CLIP</span>
+        <span class="tag">Flamingo</span>
+        <span class="tag">LLaVA</span>
+        <span class="tag">Whisper</span>
+        <span class="tag">Vision-Language</span>
+    </div>
+    <div class="pipeline">
+        <span class="pipeline-step">Image Patches</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">ViT</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Contrastive Align (CLIP)</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Frozen LM Bridge (Flamingo)</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Instruction-Tuned VLM (LLaVA)</span>
+        <span class="pipeline-arrow">&rarr;</span>
+        <span class="pipeline-step">Speech (Whisper)</span>
+    </div>
+</header>
+
+<section class="slide" id="slide-00">
+    <div class="slide-number">00</div>
+    <h2>The Five Publications</h2>
+    <p>How language models learned to consume pixels and audio. The arc runs from "make vision look like a sequence of tokens" through "align images and text in one space" to "bolt a vision encoder onto a frozen LLM and instruction-tune it" &mdash; then closes with the dominant open speech model.</p>
+    <ul class="contents-list">
+        <li><a href="#slide-01">An Image is Worth 16x16 Words (ViT) &mdash; Dosovitskiy et al., 2020</a></li>
+        <li><a href="#slide-02">Learning Transferable Visual Models (CLIP) &mdash; Radford et al., 2021</a></li>
+        <li><a href="#slide-03">Flamingo: a Visual Language Model for Few-Shot Learning &mdash; Alayrac et al., 2022</a></li>
+        <li><a href="#slide-04">Visual Instruction Tuning (LLaVA) &mdash; Liu et al., 2023</a></li>
+        <li><a href="#slide-05">Robust Speech Recognition via Weak Supervision (Whisper) &mdash; Radford et al., 2022</a></li>
+    </ul>
+</section>
+
+<section class="slide" id="slide-01">
+    <div class="slide-number">01</div>
+    <h2>An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale (ViT)</h2>
+    <p><strong>Dosovitskiy et al.</strong> (Google Research, Brain Team), 2020 <span class="badge ok">2020</span> &middot; <code>arXiv:2010.11929</code></p>
+    <h3>The problem</h3>
+    <p>For a decade, computer vision was synonymous with convolutional neural networks. CNNs bake in strong <strong>inductive biases</strong> &mdash; locality, translation equivariance, a hierarchical receptive field. Transformers had already swept NLP, but applying full self-attention to every pixel is quadratic and intractable for real images. Could a near-vanilla Transformer compete in vision at all?</p>
+    <h3>The contribution</h3>
+    <p>Split an image into a grid of fixed-size patches (e.g. 16&times;16 pixels), <strong>linearly project each patch into an embedding</strong>, prepend a learnable <code>[class]</code> token, add 1-D position embeddings, and feed the resulting token sequence into a standard Transformer encoder. No convolutions in the backbone. The key finding: with weak inductive bias, ViT <em>underperforms</em> CNNs on small datasets, but when pretrained on large corpora (ImageNet-21k, JFT-300M) it <strong>matches or beats</strong> the best CNNs while costing less to train.</p>
+    <div class="canvas-wrap">
+        <svg viewBox="0 0 720 220" width="720" height="220" xmlns="http://www.w3.org/2000/svg">
+            <style>
+                .vit-lbl { fill: #8b949e; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+                .vit-ttl { fill: #76B900; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 12px; }
+                .vit-tok { fill: rgba(118,185,0,0.08); stroke: #76B900; stroke-width: 1; }
+                .vit-cls { fill: rgba(118,185,0,0.22); stroke: #76B900; stroke-width: 1.5; }
+                .vit-ar  { stroke: #76B900; stroke-width: 1.5; marker-end: url(#vitarrow); fill: none; }
+            </style>
+            <defs>
+                <marker id="vitarrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                    <path d="M0,0 L6,3 L0,6 Z" fill="#76B900"/>
+                </marker>
+            </defs>
+            <text x="10" y="18" class="vit-ttl">Image &rarr; patches &rarr; token sequence &rarr; Transformer encoder</text>
+            <!-- image grid -->
+            <rect x="20" y="40" width="90" height="90" fill="none" stroke="#21262d"/>
+            <line x1="50" y1="40" x2="50" y2="130" stroke="#21262d"/>
+            <line x1="80" y1="40" x2="80" y2="130" stroke="#21262d"/>
+            <line x1="20" y1="70" x2="110" y2="70" stroke="#21262d"/>
+            <line x1="20" y1="100" x2="110" y2="100" stroke="#21262d"/>
+            <text x="30" y="148" class="vit-lbl">9 patches</text>
+            <path d="M 115 85 L 150 85" class="vit-ar"/>
+            <!-- patch tokens -->
+            <rect x="160" y="55" width="28" height="28" class="vit-cls"/>
+            <text x="166" y="73" class="vit-lbl">CLS</text>
+            <rect x="194" y="55" width="28" height="28" class="vit-tok"/>
+            <rect x="228" y="55" width="28" height="28" class="vit-tok"/>
+            <rect x="262" y="55" width="28" height="28" class="vit-tok"/>
+            <text x="296" y="73" class="vit-lbl">… + position emb</text>
+            <text x="160" y="103" class="vit-lbl">linear patch projection &rarr; tokens</text>
+            <path d="M 230 110 L 230 135" class="vit-ar"/>
+            <!-- transformer -->
+            <rect x="160" y="140" width="370" height="40" fill="rgba(118,185,0,0.08)" stroke="#76B900"/>
+            <text x="270" y="165" class="vit-lbl">Standard Transformer encoder (L layers)</text>
+            <path d="M 540 160 L 575 160" class="vit-ar"/>
+            <text x="560" y="148" class="vit-lbl">CLS &rarr;</text>
+            <text x="560" y="178" class="vit-lbl">MLP head &rarr; class</text>
+        </svg>
+    </div>
+    <h3>Why it matters to a practising engineer</h3>
+    <p>ViT is the <strong>vision backbone</strong> underneath almost everything later in this deck: CLIP, Flamingo's resampler, and LLaVA's projector all consume ViT (or CLIP-ViT) patch features. Understanding that an image is "just a short token sequence" explains why modern VLMs can interleave image and text tokens in a single context window &mdash; and why image token count (patches) directly drives context length and cost.</p>
+    <div class="callout">
+        <div class="callout-label">The data-scale lesson</div>
+        <p>ViT's headline result is really a <strong>scaling claim</strong>: removing inductive bias is only viable if you replace it with data. On ImageNet-1k alone ViT loses to ResNets; pretrained on JFT-300M it wins. This "bias vs data" trade-off recurs everywhere in multimodal work &mdash; the bitter lesson, applied to pixels.</p>
+    </div>
+</section>
+
+<section class="slide" id="slide-02">
+    <div class="slide-number">02</div>
+    <h2>Learning Transferable Visual Models From Natural Language Supervision (CLIP)</h2>
+    <p><strong>Radford et al.</strong> (OpenAI), 2021 <span class="badge ok">2021</span> &middot; <code>arXiv:2103.00020</code></p>
+    <h3>The problem</h3>
+    <p>Standard vision models are trained to predict a <strong>fixed set of labels</strong> (the 1000 ImageNet classes). Adapting to a new task means collecting new labelled data and retraining a classification head. Meanwhile the web contains hundreds of millions of images already paired with descriptive text &mdash; an enormous, free, open-vocabulary supervision signal that was going unused.</p>
+    <h3>The contribution</h3>
+    <p><strong>Contrastive Language&ndash;Image Pretraining.</strong> Train an image encoder and a text encoder jointly on <strong>~400M image&ndash;text pairs</strong>. For each batch, compute the cosine similarity matrix between all images and all captions; the symmetric InfoNCE loss pulls matching pairs together and pushes mismatched pairs apart. The result is a <strong>shared embedding space</strong>. At inference, classify zero-shot by embedding the candidate label prompts (e.g. <code>"a photo of a {dog}"</code>) and taking the nearest caption &mdash; no task-specific training.</p>
+    <div class="canvas-wrap">
+        <svg viewBox="0 0 700 240" width="700" height="240" xmlns="http://www.w3.org/2000/svg">
+            <style>
+                .cl-lbl { fill: #8b949e; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+                .cl-ttl { fill: #76B900; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 12px; }
+                .cl-cell { fill: none; stroke: #21262d; stroke-width: 1; }
+                .cl-diag { fill: rgba(118,185,0,0.25); stroke: #76B900; stroke-width: 1; }
+            </style>
+            <text x="10" y="18" class="cl-ttl">Contrastive matrix &mdash; maximise the diagonal (matched pairs)</text>
+            <text x="60" y="45" class="cl-lbl">T&#x2081;</text>
+            <text x="110" y="45" class="cl-lbl">T&#x2082;</text>
+            <text x="160" y="45" class="cl-lbl">T&#x2083;</text>
+            <text x="210" y="45" class="cl-lbl">T&#x2084;</text>
+            <text x="0" y="80" class="cl-lbl">I&#x2081;</text>
+            <text x="0" y="125" class="cl-lbl">I&#x2082;</text>
+            <text x="0" y="170" class="cl-lbl">I&#x2083;</text>
+            <text x="0" y="215" class="cl-lbl">I&#x2084;</text>
+            <!-- 4x4 grid, diagonal highlighted -->
+            <g>
+                <rect x="45" y="55"  width="40" height="40" class="cl-diag"/>
+                <rect x="95" y="55"  width="40" height="40" class="cl-cell"/>
+                <rect x="145" y="55" width="40" height="40" class="cl-cell"/>
+                <rect x="195" y="55" width="40" height="40" class="cl-cell"/>
+                <rect x="45" y="100" width="40" height="40" class="cl-cell"/>
+                <rect x="95" y="100" width="40" height="40" class="cl-diag"/>
+                <rect x="145" y="100" width="40" height="40" class="cl-cell"/>
+                <rect x="195" y="100" width="40" height="40" class="cl-cell"/>
+                <rect x="45" y="145" width="40" height="40" class="cl-cell"/>
+                <rect x="95" y="145" width="40" height="40" class="cl-cell"/>
+                <rect x="145" y="145" width="40" height="40" class="cl-diag"/>
+                <rect x="195" y="145" width="40" height="40" class="cl-cell"/>
+                <rect x="45" y="190" width="40" height="40" class="cl-cell"/>
+                <rect x="95" y="190" width="40" height="40" class="cl-cell"/>
+                <rect x="145" y="190" width="40" height="40" class="cl-cell"/>
+                <rect x="195" y="190" width="40" height="40" class="cl-diag"/>
+            </g>
+            <text x="290" y="80"  class="cl-lbl">Image encoder (ViT/ResNet)</text>
+            <text x="290" y="105" class="cl-lbl">&darr;</text>
+            <text x="290" y="130" class="cl-lbl">Text encoder (Transformer)</text>
+            <text x="290" y="155" class="cl-lbl">&darr;</text>
+            <text x="290" y="180" class="cl-lbl">L2-normalise &rarr; cosine sim</text>
+            <text x="290" y="205" class="cl-lbl">symmetric InfoNCE loss</text>
+        </svg>
+    </div>
+    <h3>Why it matters to a practising engineer</h3>
+    <p>CLIP is the most reused multimodal component in production. Its image encoder is the default <strong>vision tower</strong> for LLaVA and many open VLMs; its embedding space powers <strong>zero-shot classification, image search, deduplication, content moderation, and diffusion-model conditioning</strong>. When someone says "embed an image", they usually mean a CLIP-family encoder. Knowing the prompt-engineering quirk (<code>"a photo of a ..."</code> templates meaningfully change accuracy) is directly actionable.</p>
+    <div class="callout">
+        <div class="callout-label">Open-vocabulary, with caveats</div>
+        <p>CLIP's zero-shot generality comes from scale and natural-language labels, but it inherits web biases and struggles with fine-grained counting, OCR, and abstract reasoning. It is an <em>alignment</em> model, not a generative one &mdash; it scores image&ndash;text agreement; it does not produce captions. That generative gap is exactly what Flamingo and LLaVA fill.</p>
+    </div>
+</section>
+
+<section class="slide" id="slide-03">
+    <div class="slide-number">03</div>
+    <h2>Flamingo: a Visual Language Model for Few-Shot Learning</h2>
+    <p><strong>Alayrac et al.</strong> (DeepMind), 2022 <span class="badge ok">2022</span> &middot; <code>arXiv:2204.14198</code></p>
+    <h3>The problem</h3>
+    <p>Large language models are expensive to train and exhibit powerful few-shot, in-context abilities. Vision encoders like CLIP are also expensive. Retraining a giant multimodal model end-to-end is wasteful &mdash; and risks destroying the LM's language competence. How do you give an existing, frozen LLM the ability to see, and to do <strong>few-shot multimodal tasks</strong> from interleaved image-and-text prompts?</p>
+    <h3>The contribution</h3>
+    <p>Flamingo <strong>keeps both the vision encoder and the LM frozen</strong> and bridges them with two new trainable components: a <strong>Perceiver Resampler</strong> that maps a variable number of vision features into a fixed small set of visual tokens, and <strong>gated cross-attention dense layers</strong> interleaved into the frozen LM. The <code>tanh</code> gating starts at zero, so training begins as the original LM and gradually learns to attend to visual tokens &mdash; preserving language ability. It handles <strong>arbitrarily interleaved</strong> image/text sequences and sets few-shot SOTA across captioning and VQA.</p>
+    <div class="diagram-flow">
+        <div class="diagram-box dim">Frozen vision<br><small>encoder (NFNet)</small></div>
+        <div class="diagram-arrow">&rarr;</div>
+        <div class="diagram-box accent">Perceiver<br><small>Resampler</small></div>
+        <div class="diagram-arrow">&rarr;</div>
+        <div class="diagram-box accent">Gated x-attn<br><small>tanh gate &asymp; 0 init</small></div>
+        <div class="diagram-arrow">&rarr;</div>
+        <div class="diagram-box dim">Frozen LM<br><small>(Chinchilla)</small></div>
+        <div class="diagram-arrow">&rarr;</div>
+        <div class="diagram-box accent">Text output</div>
+    </div>
+    <p>Only the resampler and the gated cross-attention layers are trained; the dim boxes above are frozen. This is the canonical <strong>"adapter" pattern</strong> for multimodality &mdash; cheap to train, modality-extensible, and non-destructive to the base model.</p>
+    <h3>Why it matters to a practising engineer</h3>
+    <p>Flamingo established the dominant blueprint: <strong>freeze the heavy components, train a small bridge.</strong> The Perceiver Resampler answers a real engineering question &mdash; how to feed a fixed, affordable number of visual tokens into a context window regardless of image resolution. Gated cross-attention is the template for adding any new modality (audio, video) to a deployed LLM without full retraining. The open-source <strong>OpenFlamingo</strong> and IDEFICS reproductions make the pattern directly usable.</p>
+    <div class="callout">
+        <div class="callout-label">Why zero-init gating matters</div>
+        <p>Initialising the cross-attention gate at <code>tanh(0)=0</code> means the augmented model is <em>identical</em> to the frozen LM at step 0. Training only ever adds capability, never regresses base language quality. This zero-init-residual trick reappears in LoRA, ControlNet, and most modern adapter methods &mdash; learn it once, recognise it everywhere.</p>
+    </div>
+</section>
+
+<section class="slide" id="slide-04">
+    <div class="slide-number">04</div>
+    <h2>Visual Instruction Tuning (LLaVA)</h2>
+    <p><strong>Liu et al.</strong> (University of Wisconsin&ndash;Madison, Microsoft Research, Columbia), 2023 <span class="badge ok">2023</span> &middot; <code>arXiv:2304.08485</code></p>
+    <h3>The problem</h3>
+    <p>Instruction tuning made text LLMs into helpful assistants, but no comparable <strong>multimodal instruction-following dataset</strong> existed. Flamingo-style models were powerful yet closed and expensive. Could you build an open, conversational vision assistant cheaply &mdash; without DeepMind-scale resources?</p>
+    <h3>The contribution</h3>
+    <p>Two ideas. First, <strong>use GPT-4 (text-only) to generate multimodal instruction data</strong>: feed it image captions and bounding boxes as a textual proxy for the image, and have it produce conversations, detailed descriptions, and complex-reasoning Q&amp;A. Second, a <strong>minimal architecture</strong>: take a frozen CLIP ViT-L/14 vision encoder, connect it to a Vicuna LLM through a <strong>single linear projection</strong> (later an MLP), and instruction-tune. The whole thing trains in <strong>hours on a handful of GPUs</strong>, yet yields a capable chat-style visual assistant.</p>
+    <div class="diagram-flow">
+        <div class="diagram-box dim">Image</div>
+        <div class="diagram-arrow">&rarr;</div>
+        <div class="diagram-box accent">CLIP ViT-L/14<br><small>frozen</small></div>
+        <div class="diagram-arrow">&rarr;</div>
+        <div class="diagram-box accent">Linear / MLP<br><small>projection W</small></div>
+        <div class="diagram-arrow">&rarr;</div>
+        <div class="diagram-box">Visual tokens<br><small>in LM space</small></div>
+        <div class="diagram-arrow">&rarr;</div>
+        <div class="diagram-box dim">Vicuna LLM</div>
+        <div class="diagram-arrow">&rarr;</div>
+        <div class="diagram-box accent">Response</div>
+    </div>
+    <p>The projection <code>W</code> is the entire bridge: it maps CLIP image features into the LLM's word-embedding space so the language model treats them like ordinary tokens. Stage 1 trains only <code>W</code> (feature alignment); stage 2 fine-tunes <code>W</code> + the LLM on instruction data.</p>
+    <h3>Why it matters to a practising engineer</h3>
+    <p>LLaVA is the <strong>practical recipe</strong> the open community actually builds on. It proves you can stand up a competent VLM with a frozen CLIP tower, a tiny projector, and good data &mdash; on a startup budget. The <strong>"use a strong LLM to synthesise instruction data"</strong> trick is a reusable pattern far beyond vision. LLaVA-1.5 / NeXT, and most open multimodal models since, are direct descendants of this projector-plus-instruction-tuning template.</p>
+    <div class="callout">
+        <div class="callout-label">Data quality over architecture</div>
+        <p>LLaVA's lesson is that the <strong>bridge can be trivial</strong> (one matrix) if the <strong>data is good</strong>. Most of its capability comes from GPT-4-generated instruction data, not architectural cleverness. When building your own VLM, spend your effort on the instruction dataset &mdash; reasoning, descriptions, multi-turn dialogue &mdash; before reaching for a fancier connector.</p>
+    </div>
+</section>
+
+<section class="slide" id="slide-05">
+    <div class="slide-number">05</div>
+    <h2>Robust Speech Recognition via Large-Scale Weak Supervision (Whisper)</h2>
+    <p><strong>Radford et al.</strong> (OpenAI), 2022 <span class="badge ok">2022</span> &middot; <code>arXiv:2212.04356</code></p>
+    <h3>The problem</h3>
+    <p>State-of-the-art ASR relied on either small high-quality supervised datasets (limited robustness) or unsupervised pretraining that still needed fine-tuning per dataset and was brittle out-of-distribution. The field lacked a single model that "just worked" across accents, noise, languages, and domains without per-task adaptation.</p>
+    <h3>The contribution</h3>
+    <p>Scale up <strong>weak supervision</strong>: collect <strong>680,000 hours</strong> of multilingual, multitask audio paired with transcripts scraped from the web (with filtering to remove machine-generated transcripts). Train a single off-the-shelf <strong>encoder&ndash;decoder Transformer</strong> on log-Mel spectrogram inputs. A set of special tokens turns it into a multitask interface: the same model does <strong>transcription, X&rarr;English translation, language identification, and timestamp prediction</strong>, with strong <strong>zero-shot robustness</strong> that approaches human accuracy on many benchmarks &mdash; no dataset-specific fine-tuning.</p>
+    <div class="diagram-flow">
+        <div class="diagram-box dim">Audio<br><small>16 kHz, 30 s</small></div>
+        <div class="diagram-arrow">&rarr;</div>
+        <div class="diagram-box">Log-Mel<br><small>spectrogram</small></div>
+        <div class="diagram-arrow">&rarr;</div>
+        <div class="diagram-box accent">Transformer<br><small>encoder</small></div>
+        <div class="diagram-arrow">&rarr;</div>
+        <div class="diagram-box accent">Transformer<br><small>decoder</small></div>
+        <div class="diagram-arrow">&rarr;</div>
+        <div class="diagram-box">Tokens + text</div>
+    </div>
+    <p>Special tokens (<code>&lt;|transcribe|&gt;</code>, <code>&lt;|translate|&gt;</code>, language tags, <code>&lt;|notimestamps|&gt;</code>) prefix the decoder to select the task &mdash; a clean example of the <strong>prompt-as-control</strong> idea applied to a non-text modality.</p>
+    <h3>Why it matters to a practising engineer</h3>
+    <p>Whisper is the <strong>default open speech model</strong>. It is the audio front-end of countless agent and voice pipelines: speech &rarr; Whisper &rarr; LLM &rarr; TTS. It runs locally (multiple sizes, <code>tiny</code> to <code>large-v3</code>), is permissively licensed, and the <code>faster-whisper</code> / <code>whisper.cpp</code> ports make real-time transcription cheap. Knowing its 30-second chunking, language-ID behaviour, and hallucination-on-silence failure mode is essential for shipping voice features.</p>
+    <div class="callout">
+        <div class="callout-label">The weak-supervision thesis</div>
+        <p>Whisper's core claim mirrors ViT and CLIP: <strong>scale of noisy, diverse data beats clean, narrow data</strong> for robustness. It deliberately trades a little in-distribution accuracy for huge gains in zero-shot generalisation &mdash; the right bet for production systems that face messy real-world audio rather than a curated test set.</p>
+    </div>
+</section>
+
+<section class="slide" id="slide-06">
+    <div class="slide-number">06</div>
+    <h2>What to Take Away</h2>
+    <ul>
+        <li><strong>Vision became sequence modelling.</strong> ViT recast an image as a short token sequence, letting the entire Transformer toolbox transfer to pixels &mdash; the precondition for everything else.</li>
+        <li><strong>Alignment is the reusable primitive.</strong> CLIP's shared image&ndash;text embedding space is the most-reused multimodal component: search, zero-shot classification, diffusion conditioning, and the vision tower for VLMs.</li>
+        <li><strong>Freeze the giants, train a small bridge.</strong> Flamingo's frozen-backbone + gated cross-attention pattern (with zero-init gating) is the cheap, non-destructive blueprint for adding modalities.</li>
+        <li><strong>Data beats connector complexity.</strong> LLaVA proved a one-matrix projector plus GPT-4-synthesised instruction data yields a strong open assistant on a tiny budget.</li>
+        <li><strong>Weak supervision at scale buys robustness.</strong> Whisper turned 680k hours of noisy web audio into a single multitask model that is now the default speech front-end for voice agents.</li>
+        <li><strong>One recurring thesis:</strong> across ViT, CLIP, and Whisper, removing inductive bias and scaling diverse data wins &mdash; provided you actually have the data.</li>
+    </ul>
+    <div class="callout">
+        <div class="callout-label">Where to next</div>
+        <p>Presentation 09 &mdash; <strong>Open Models &amp; Architectures</strong> &mdash; moves from modality bridges to the open-weights model landscape: the architectures, families, and design choices behind the LLMs you can actually run and fine-tune yourself.</p>
+    </div>
+</section>
+
+<footer class="footer">
+    <p>Part of the <a href="https://github.com/BrendanJamesLynskey/LLM_Hub_Key_Publications">Key LLM Publications Series</a></p>
+    <p style="margin-top:0.5rem;font-size:0.8rem;"><a href="https://github.com/BrendanJamesLynskey/LLM_Hub_Key_Publications">Back to Series Index</a></p>
+</footer>
+<script>
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.slide').forEach(slide => {
+        slide.style.opacity = '0';
+        slide.style.transform = 'translateY(30px)';
+        slide.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(slide);
+    });
+</script>
+</body>
+</html>
