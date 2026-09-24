@@ -9,15 +9,15 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-primary: #0a0a0a;
-            --bg-card: #0d1117;
-            --bg-code: #161b22;
-            --text-primary: #e6edf3;
-            --text-secondary: #8b949e;
-            --accent: #76B900;
-            --accent-dim: #76B90044;
-            --accent-glow: #76B90033;
-            --border: #21262d;
+            --bg-primary: #f2f1ee;
+            --bg-card: #eae8e4;
+            --bg-code: #e1dfd9;
+            --text-primary: #171717;
+            --text-secondary: #615f59;
+            --accent: #36774d;
+            --accent-dim: #36774d44;
+            --accent-glow: #36774d1a;
+            --border: #d1cfc7;
             --font-display: 'Space Grotesk', sans-serif;
             --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
             --font-body: 'Inter', sans-serif;
@@ -165,7 +165,7 @@
             border: 1px solid var(--border);
             padding: 0.05rem 0.35rem;
             border-radius: 3px;
-            color: #c9d1d9;
+            color: #2d2d2a;
         }
         .code-block {
             background: var(--bg-code);
@@ -178,7 +178,7 @@
             font-family: var(--font-mono);
             font-size: 0.75rem;
             color: var(--accent);
-            background: rgba(118, 185, 0, 0.08);
+            background: rgba(54,119,77,0.08);
             padding: 0.4rem 1rem;
             border-bottom: 1px solid var(--border);
         }
@@ -187,19 +187,19 @@
             font-family: var(--font-mono);
             font-size: 0.85rem;
             line-height: 1.6;
-            color: #c9d1d9;
+            color: #2d2d2a;
             background: transparent;
             border: none;
             padding: 0;
         }
-        .kw { color: #ff7b72; }
-        .fn { color: #d2a8ff; }
-        .str { color: #a5d6ff; }
-        .cm { color: #8b949e; font-style: italic; }
-        .num { color: #79c0ff; }
-        .type { color: #ffa657; }
-        .dir { color: #ff7b72; }
-        .mac { color: #ffa657; }
+        .kw { color: #9d1128; }
+        .fn { color: #422750; }
+        .str { color: #172539; }
+        .cm { color: #615f59; font-style: italic; }
+        .num { color: #173055; }
+        .type { color: #95621f; }
+        .dir { color: #9d1128; }
+        .mac { color: #95621f; }
         .table-wrap {
             overflow-x: auto;
             margin: 1.25rem 0;
@@ -223,7 +223,7 @@
             color: var(--text-secondary);
         }
         tr:last-child td { border-bottom: none; }
-        tr:nth-child(even) td { background: rgba(13, 17, 23, 0.5); }
+        tr:nth-child(even) td { background: rgba(234,232,228,0.5); }
         .diagram-flow {
             display: flex;
             flex-wrap: wrap;
@@ -247,7 +247,7 @@
             text-align: center;
             white-space: nowrap;
         }
-        .diagram-box.accent { border-color: var(--accent); color: var(--accent); background: rgba(118, 185, 0, 0.08); }
+        .diagram-box.accent { border-color: var(--accent); color: var(--accent); background: rgba(54,119,77,0.08); }
         .diagram-box.dim { color: var(--text-secondary); border-color: var(--border); }
         .diagram-arrow { color: var(--accent); font-size: 1.3rem; font-weight: 700; }
         .diagram-vertical {
@@ -290,7 +290,7 @@
             border: 1px solid var(--border);
             color: var(--text-secondary);
         }
-        .hierarchy-item.accent { border-color: var(--accent); color: var(--accent); background: rgba(118, 185, 0, 0.08); }
+        .hierarchy-item.accent { border-color: var(--accent); color: var(--accent); background: rgba(54,119,77,0.08); }
         .diagram-grid {
             display: grid;
             gap: 0.75rem;
@@ -384,8 +384,8 @@
             margin-left: 0.3rem;
         }
         .badge.ok    { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
-        .badge.warn  { border-color: #ffa657; color: #ffa657; background: rgba(255,166,87,0.08); }
-        .badge.bad   { border-color: #ff7b72; color: #ff7b72; background: rgba(255,123,114,0.08); }
+        .badge.warn  { border-color: #95621f; color: #95621f; background: rgba(149,98,31,0.08); }
+        .badge.bad   { border-color: #9d1128; color: #9d1128; background: rgba(157,17,40,0.08); }
         @media (max-width: 640px) {
             .slide { padding: 3rem 1rem; min-height: auto; }
             .slide-number { font-size: 3rem; top: 1.5rem; right: 1rem; }
@@ -450,24 +450,24 @@
     <div class="canvas-wrap">
         <svg viewBox="0 0 720 220" width="720" height="220" xmlns="http://www.w3.org/2000/svg">
             <style>
-                .vit-lbl { fill: #8b949e; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
-                .vit-ttl { fill: #76B900; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 12px; }
-                .vit-tok { fill: rgba(118,185,0,0.08); stroke: #76B900; stroke-width: 1; }
-                .vit-cls { fill: rgba(118,185,0,0.22); stroke: #76B900; stroke-width: 1.5; }
-                .vit-ar  { stroke: #76B900; stroke-width: 1.5; marker-end: url(#vitarrow); fill: none; }
+                .vit-lbl { fill: #615f59; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+                .vit-ttl { fill: #36774d; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 12px; }
+                .vit-tok { fill: rgba(54,119,77,0.08); stroke: #36774d; stroke-width: 1; }
+                .vit-cls { fill: rgba(54,119,77,0.22); stroke: #36774d; stroke-width: 1.5; }
+                .vit-ar  { stroke: #36774d; stroke-width: 1.5; marker-end: url(#vitarrow); fill: none; }
             </style>
             <defs>
                 <marker id="vitarrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-                    <path d="M0,0 L6,3 L0,6 Z" fill="#76B900"/>
+                    <path d="M0,0 L6,3 L0,6 Z" fill="#36774d"/>
                 </marker>
             </defs>
             <text x="10" y="18" class="vit-ttl">Image &rarr; patches &rarr; token sequence &rarr; Transformer encoder</text>
             <!-- image grid -->
-            <rect x="20" y="40" width="90" height="90" fill="none" stroke="#21262d"/>
-            <line x1="50" y1="40" x2="50" y2="130" stroke="#21262d"/>
-            <line x1="80" y1="40" x2="80" y2="130" stroke="#21262d"/>
-            <line x1="20" y1="70" x2="110" y2="70" stroke="#21262d"/>
-            <line x1="20" y1="100" x2="110" y2="100" stroke="#21262d"/>
+            <rect x="20" y="40" width="90" height="90" fill="none" stroke="#d1cfc7"/>
+            <line x1="50" y1="40" x2="50" y2="130" stroke="#d1cfc7"/>
+            <line x1="80" y1="40" x2="80" y2="130" stroke="#d1cfc7"/>
+            <line x1="20" y1="70" x2="110" y2="70" stroke="#d1cfc7"/>
+            <line x1="20" y1="100" x2="110" y2="100" stroke="#d1cfc7"/>
             <text x="30" y="148" class="vit-lbl">9 patches</text>
             <path d="M 115 85 L 150 85" class="vit-ar"/>
             <!-- patch tokens -->
@@ -480,7 +480,7 @@
             <text x="160" y="103" class="vit-lbl">linear patch projection &rarr; tokens</text>
             <path d="M 230 110 L 230 135" class="vit-ar"/>
             <!-- transformer -->
-            <rect x="160" y="140" width="370" height="40" fill="rgba(118,185,0,0.08)" stroke="#76B900"/>
+            <rect x="160" y="140" width="370" height="40" fill="rgba(54,119,77,0.08)" stroke="#36774d"/>
             <text x="270" y="165" class="vit-lbl">Standard Transformer encoder (L layers)</text>
             <path d="M 540 160 L 575 160" class="vit-ar"/>
             <text x="560" y="148" class="vit-lbl">CLS &rarr;</text>
@@ -506,10 +506,10 @@
     <div class="canvas-wrap">
         <svg viewBox="0 0 700 240" width="700" height="240" xmlns="http://www.w3.org/2000/svg">
             <style>
-                .cl-lbl { fill: #8b949e; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
-                .cl-ttl { fill: #76B900; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 12px; }
-                .cl-cell { fill: none; stroke: #21262d; stroke-width: 1; }
-                .cl-diag { fill: rgba(118,185,0,0.25); stroke: #76B900; stroke-width: 1; }
+                .cl-lbl { fill: #615f59; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+                .cl-ttl { fill: #36774d; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 12px; }
+                .cl-cell { fill: none; stroke: #d1cfc7; stroke-width: 1; }
+                .cl-diag { fill: rgba(54,119,77,0.25); stroke: #36774d; stroke-width: 1; }
             </style>
             <text x="10" y="18" class="cl-ttl">Contrastive matrix &mdash; maximise the diagonal (matched pairs)</text>
             <text x="60" y="45" class="cl-lbl">T&#x2081;</text>
